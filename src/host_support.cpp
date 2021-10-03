@@ -12,18 +12,17 @@ void initialiseDevice(const std::string & vendorName, const std::string & device
 
   cl_int err;
   std::vector<cl::Device> matchingDevices=obtainMatchingDevices(vendorName, deviceName);
+  if (matchingDevices.empty()) {
+    std::throw_with_nested(HostSupportException("No devices found matching name '"+deviceName+"' for platform with name '"+vendorName+"'"));
+  }
   OCL_CHECK(err, context=new cl::Context(matchingDevices, NULL, NULL, NULL, &err));
   program=programDevice(binaryName, matchingDevices, *context);
 }
 
 std::vector<cl::Device> obtainMatchingDevices(const std::string & vendorName, const std::string & deviceName) {
   std::vector<cl::Device> matchingDevices;
-  std::vector<cl::Device> platformDevices;
-  try {
-    platformDevices=obtainPlatformDevices(vendorName);
-  } catch(const std::exception& e) {
-    throw;
-  }
+
+  std::vector<cl::Device> platformDevices=obtainPlatformDevices(vendorName);
   for (cl::Device device : platformDevices) {
     cl_int err;
     std::string specificDevName=device.getInfo<CL_DEVICE_NAME>(&err);
@@ -44,12 +43,8 @@ cl::Program* programDevice(const std::string & binaryName, std::vector<cl::Devic
   cl_int err;
   // Read the binary file
   uint32_t fileBufSize;
-  char* fileBuf;
-  try {
-    fileBuf = read_binary_file(binaryName, fileBufSize);
-  } catch(const std::exception& e) {
-    throw;
-  }
+  char* fileBuf= read_binary_file(binaryName, fileBufSize);
+
   cl::Program::Binaries bins{{fileBuf, fileBufSize}};
 
   // Create the program object from the binary and program the FPGA device with it
