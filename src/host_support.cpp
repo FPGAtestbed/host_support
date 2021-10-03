@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <algorithm>
 
 static std::vector<cl::Device> obtainPlatformDevices(const std::string&);
 static char* read_binary_file(const std::string&, uint32_t&);
@@ -39,7 +40,10 @@ std::vector<cl::Device> obtainMatchingDevices(const std::string & vendorName, co
   for (cl::Device device : platformDevices) {
     cl_int err;
     std::string specificDevName=device.getInfo<CL_DEVICE_NAME>(&err);
-    if (specificDevName.find(deviceName) != std::string::npos) {
+    std::transform(specificDevName.begin(), specificDevName.end(), specificDevName.begin(), ::tolower);
+    std::string lowerDeviceName=deviceName;
+    std::transform(lowerDeviceName.begin(), lowerDeviceName.end(), lowerDeviceName.begin(), ::tolower);
+    if (specificDevName.find(lowerDeviceName) != std::string::npos) {
       matchingDevices.push_back(device);
     }
   }
