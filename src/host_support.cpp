@@ -7,17 +7,18 @@
 static std::vector<cl::Device> obtainPlatformDevices(const std::string&);
 static char* read_binary_file(const std::string&, uint32_t&);
 
-std::vector<cl::Device> initialiseDevice(const std::string & vendorName, const std::string & deviceName, const std::string & binaryName,
-    cl::Context * context, cl::Program * program) {
+std::tuple<cl::Program*, cl::Context*, std::vector<cl::Device>> initialiseDevice(const std::string & vendorName, const std::string & deviceName, const std::string & binaryName) {
 
   cl_int err;
   std::vector<cl::Device> matchingDevices=obtainMatchingDevices(vendorName, deviceName);
   if (matchingDevices.empty()) {
     std::throw_with_nested(HostSupportException("No devices found matching name '"+deviceName+"' for platform with name '"+vendorName+"'"));
   }
+  cl::Context * context;
   OCL_CHECK(err, context=new cl::Context(matchingDevices, NULL, NULL, NULL, &err));
-  program=programDevice(binaryName, matchingDevices, *context);
-  return matchingDevices;
+  cl::Program * program=programDevice(binaryName, matchingDevices, *context);
+
+  return std::make_tuple(program, context, matchingDevices);
 }
 
 std::vector<std::string> obtainAvailableDevices(const std::string & vendorName) {
