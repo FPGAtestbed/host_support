@@ -7,12 +7,12 @@ static std::vector<cl::Device> obtainPlatformDevices(const std::string&);
 static char* read_binary_file(const std::string&, uint32_t&);
 
 void initialiseDevice(const std::string & vendorName, const std::string & deviceName, const std::string & binaryName,
-    cl::Context & context, cl::Program & program) {
+    cl::Context * context, cl::Program * program) {
 
   cl_int err;
   std::vector<cl::Device> matchingDevices=obtainMatchingDevices(vendorName, deviceName);
   OCL_CHECK(err, context=cl::Context(matchingDevices, NULL, NULL, NULL, &err));
-  program=programDevice(binaryName, matchingDevices, context);
+  program=programDevice(binaryName, matchingDevices, *context);
 }
 
 std::vector<cl::Device> obtainMatchingDevices(const std::string & vendorName, const std::string & deviceName) {
@@ -28,13 +28,13 @@ std::vector<cl::Device> obtainMatchingDevices(const std::string & vendorName, co
   return matchingDevices;
 }
 
-cl::Program programDevice(const std::string & binaryName, cl::Device & device, cl::Context & context) {
+cl::Program* programDevice(const std::string & binaryName, cl::Device & device, cl::Context & context) {
   std::vector<cl::Device> progdevices(1, device);
   return programDevice(binaryName, device, context);
 }
 
-cl::Program programDevice(const std::string & binaryName, std::vector<cl::Device> & devices, cl::Context & context) {
-  cl::Program program;
+cl::Program* programDevice(const std::string & binaryName, std::vector<cl::Device> & devices, cl::Context & context) {
+  cl::Program * program;
   cl_int err;
   // Read the binary file
   uint32_t fileBufSize;
@@ -42,7 +42,7 @@ cl::Program programDevice(const std::string & binaryName, std::vector<cl::Device
   cl::Program::Binaries bins{{fileBuf, fileBufSize}};
 
   // Create the program object from the binary and program the FPGA device with it
-  OCL_CHECK(err, program=cl::Program(context, devices, bins, NULL, &err));
+  OCL_CHECK(err, program=new cl::Program(context, devices, bins, NULL, &err));
   return program;
 }
 
