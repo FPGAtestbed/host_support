@@ -11,7 +11,7 @@ void initialiseDevice(const std::string & vendorName, const std::string & device
 
   cl_int err;
   std::vector<cl::Device> matchingDevices=obtainMatchingDevices(vendorName, deviceName);
-  OCL_CHECK(err, context=cl::Context(matchingDevices, NULL, NULL, NULL, &err));
+  OCL_CHECK(err, context=new cl::Context(matchingDevices, NULL, NULL, NULL, &err));
   program=programDevice(binaryName, matchingDevices, *context);
 }
 
