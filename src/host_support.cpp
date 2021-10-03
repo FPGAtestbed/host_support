@@ -7,7 +7,7 @@
 static std::vector<cl::Device> obtainPlatformDevices(const std::string&);
 static char* read_binary_file(const std::string&, uint32_t&);
 
-void initialiseDevice(const std::string & vendorName, const std::string & deviceName, const std::string & binaryName,
+std::vector<cl::Device> initialiseDevice(const std::string & vendorName, const std::string & deviceName, const std::string & binaryName,
     cl::Context * context, cl::Program * program) {
 
   cl_int err;
@@ -17,6 +17,18 @@ void initialiseDevice(const std::string & vendorName, const std::string & device
   }
   OCL_CHECK(err, context=new cl::Context(matchingDevices, NULL, NULL, NULL, &err));
   program=programDevice(binaryName, matchingDevices, *context);
+  return matchingDevices;
+}
+
+std::vector<std::string> obtainAvailableDevices(const std::string & vendorName) {
+  std::vector<std::string> deviceNames;
+  std::vector<cl::Device> platformDevices=obtainPlatformDevices(vendorName);
+  for (cl::Device device : platformDevices) {
+    cl_int err;
+    std::string specificDevName=device.getInfo<CL_DEVICE_NAME>(&err);
+    deviceNames.push_back(specificDevName);
+  }
+  return deviceNames;
 }
 
 std::vector<cl::Device> obtainMatchingDevices(const std::string & vendorName, const std::string & deviceName) {

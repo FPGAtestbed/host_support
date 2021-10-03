@@ -29,6 +29,7 @@ class HostSupportException : virtual public std::exception {
 };
 
 std::vector<cl::Device> obtainMatchingDevices(const std::string&, const std::string&);
+std::vector<std::string> obtainAvailableDevices(const std::string&);
 cl::Program* programDevice(const std::string&, cl::Device&, cl::Context&);
 cl::Program* programDevice(const std::string&, std::vector<cl::Device>&, cl::Context&);
-void initialiseDevice(const std::string&, const std::string&, const std::string&, cl::Context*, cl::Program*);
+std::vector<cl::Device> initialiseDevice(const std::string&, const std::string&, const std::string&, cl::Context*, cl::Program*);
