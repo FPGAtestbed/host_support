@@ -18,7 +18,12 @@ void initialiseDevice(const std::string & vendorName, const std::string & device
 
 std::vector<cl::Device> obtainMatchingDevices(const std::string & vendorName, const std::string & deviceName) {
   std::vector<cl::Device> matchingDevices;
-  std::vector<cl::Device> platformDevices=obtainPlatformDevices(vendorName);
+  std::vector<cl::Device> platformDevices;
+  try {
+    platformDevices=obtainPlatformDevices(vendorName);
+  } catch(const std::exception& e) {
+    throw;
+  }
   for (cl::Device device : platformDevices) {
     cl_int err;
     std::string specificDevName=device.getInfo<CL_DEVICE_NAME>(&err);
@@ -39,7 +44,12 @@ cl::Program* programDevice(const std::string & binaryName, std::vector<cl::Devic
   cl_int err;
   // Read the binary file
   uint32_t fileBufSize;
-  char* fileBuf = read_binary_file(binaryName, fileBufSize);
+  char* fileBuf;
+  try {
+    fileBuf = read_binary_file(binaryName, fileBufSize);
+  } catch(const std::exception& e) {
+    throw;
+  }
   cl::Program::Binaries bins{{fileBuf, fileBufSize}};
 
   // Create the program object from the binary and program the FPGA device with it
