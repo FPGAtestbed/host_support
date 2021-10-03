@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 static std::vector<cl::Device> obtainPlatformDevices(const std::string&);
 static char* read_binary_file(const std::string&, uint32_t&);
@@ -60,12 +61,12 @@ static std::vector<cl::Device> obtainPlatformDevices(const std::string & vendorN
       return devices;
     }
   }
-  throw(HostSupportException("No platform with name '"+vendorName+"' found"));
+  std::throw_with_nested(HostSupportException("No platform with name '"+vendorName+"' found"));
 }
 
 static char* read_binary_file(const std::string &xclbin_file_name, uint32_t & nb) {
   if(access(xclbin_file_name.c_str(), R_OK) != 0) {
-    throw(HostSupportException("File '"+xclbin_file_name+"' not found when trying to load xclbin"));
+    std::throw_with_nested(HostSupportException("File '"+xclbin_file_name+"' not found when trying to load xclbin"));
   }
   //Loading XCL Bin into char buffer
   std::ifstream bin_file(xclbin_file_name.c_str(), std::ifstream::binary);
